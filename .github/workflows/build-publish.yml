@@ -27,6 +27,7 @@ jobs:
                 JF_PROJECT: ${{ vars.JF_PROJECT }}
               with:
                   oidc-provider-name: github-oidc-intg
+                  oidc-audience: github-intg-aud
 
             - name: Checkout the repository
               uses: actions/checkout@v4
