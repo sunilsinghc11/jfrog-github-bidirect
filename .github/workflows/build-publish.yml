@@ -16,11 +16,11 @@ jobs:
           DOCKER_REPO: 'optum-app1-sunil-docker-local'
           IMAGE_NAME: 'my-very-cool-image:${{ github.run_number }}'
           JF_URL: https://${{ vars.JF_URL }}/
-          DOCKER_CLI_EXPERIMENTAL: enabled
+          # DOCKER_CLI_EXPERIMENTAL: enabled
         steps:
             # Use the specific setup-cli branch
             - name: Setup JFrog CLI
-              uses: jfrog/setup-jfrog-cli@v3
+              uses: jfrog/setup-jfrog-cli@v4
               id: setup-cli
               env:
                 JF_URL: https://${{ vars.JF_URL }}/
