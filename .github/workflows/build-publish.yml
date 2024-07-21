@@ -1,7 +1,7 @@
 name: build-publish-scan
 on:
     push:
-        branches:
+        branches: 
 
 permissions:
   actions: read # for detecting the Github Actions environment.
@@ -12,7 +12,8 @@ jobs:
     build-publish-python:
         runs-on: ubuntu-latest              
         env:
-          DOCKER_REPO: 'codeninjas-proj-docker-local'
+         # DOCKER_REPO: 'codeninjas-proj-docker-local'
+          DOCKER_REPO: 'optum-app1-sunil-docker-local'
           IMAGE_NAME: 'my-very-cool-image:${{ github.run_number }}'
           JF_URL: https://${{ vars.JF_URL }}/
           DOCKER_CLI_EXPERIMENTAL: enabled
@@ -25,7 +26,7 @@ jobs:
                 JF_URL: https://${{ vars.JF_URL }}/
                 JF_PROJECT: ${{ vars.JF_PROJECT }}
               with:
-                  oidc-provider-name: jfrog-github-oidc
+                  oidc-provider-name: github-oidc-intg
 
             - name: Checkout the repository
               uses: actions/checkout@v4
@@ -40,7 +41,7 @@ jobs:
             - name: configure jfrog environment
               run: |
                 # Use a curated repository for python dependencies resolution
-                jf pip-config --repo-resolve=codeninjas-proj-python-virtual   
+                jf pip-config --repo-resolve=optum-app1-sunil-py-virtual   
 
             - name: configure environment
               run: |    
@@ -58,7 +59,7 @@ jobs:
 
             - name: publish python package
               run: |
-                jf rt u dist/ codeninjas-proj-python-virtual/example-projects/ --module=jfrog-python-example
+                jf rt u dist/ optum-app1-sunil-py-virtual/example-projects/ --module=jfrog-python-example
 
       
             - name: Set up QEMU
