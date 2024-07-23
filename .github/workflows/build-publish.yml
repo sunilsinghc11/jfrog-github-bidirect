@@ -1,7 +1,7 @@
 name: build-publish-scan
 on:
     push:
-        branches: 
+        branches:
 
 permissions:
   actions: read # for detecting the Github Actions environment.
@@ -12,11 +12,11 @@ jobs:
     build-publish-python:
         runs-on: ubuntu-latest              
         env:
-         # DOCKER_REPO: 'codeninjas-proj-docker-local'
+          # DOCKER_REPO: 'codeninjas-proj-docker-local'
           DOCKER_REPO: 'optum-app1-sunil-docker-local'
           IMAGE_NAME: 'my-very-cool-image:${{ github.run_number }}'
           JF_URL: https://${{ vars.JF_URL }}/
-          # DOCKER_CLI_EXPERIMENTAL: enabled
+          DOCKER_CLI_EXPERIMENTAL: enabled
         steps:
             # Use the specific setup-cli branch
             - name: Setup JFrog CLI
@@ -26,8 +26,8 @@ jobs:
                 JF_URL: https://${{ vars.JF_URL }}/
                 JF_PROJECT: ${{ vars.JF_PROJECT }}
               with:
-                  oidc-provider-name: github-oidc-intg
-                  oidc-audience: github-intg-aud
+                  oidc-provider-name: github-bidirect 
+                  oidc-audience: github-jfrog-aud
 
             - name: Checkout the repository
               uses: actions/checkout@v4
@@ -129,5 +129,5 @@ jobs:
 
             - name: build scan
               run: |            
-              #  jf build-scan
+                jf build-scan build-publish-scan
 
