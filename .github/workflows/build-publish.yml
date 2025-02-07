@@ -52,7 +52,7 @@ jobs:
               run: | 
                 jf config show
                 jf rt ping
-                jfrog rt audit --log-level=DEBUG
+                jf audit --log-level=DEBUG
                 exit 1
                 jf pip install -r requirements.txt  --module=jfrog-python-example                
                 python setup.py sdist bdist_wheel
