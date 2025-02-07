@@ -42,7 +42,7 @@ jobs:
 
             - name: configure environment
               run: |    
-                pip install --upgrade pip     
+               # pip install --upgrade pip     
                 python3 -m pip install --upgrade pip setuptools wheel sigstore
                 wheel -h
                 pip show setuptools
@@ -51,7 +51,9 @@ jobs:
             - name: build project
               run: | 
                 jf config show
+                jf rt ping
                 jf audit 
+                exit 1
                 jf pip install -r requirements.txt  --module=jfrog-python-example                
                 python setup.py sdist bdist_wheel
                 cd dist && echo "hashes=$(sha256sum * | base64 -w0)" >> $GITHUB_OUTPUT
