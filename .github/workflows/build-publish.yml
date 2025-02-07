@@ -43,9 +43,9 @@ jobs:
 
             - name: configure environment
               run: |    
-               # pip install --upgrade pip     
-               #  python3 -m pip install --upgrade pip setuptools wheel sigstore
-               # wheel -h
+               pip install --upgrade pip     
+               python3 -m pip install --upgrade pip setuptools wheel sigstore
+               wheel -h
                 pip show setuptools
                 echo $VIRTUAL_ENV
 
@@ -54,7 +54,7 @@ jobs:
                 #export JFROG_CLI_LOG_LEVEL=DEBUG
                 jf config show
                 jf rt ping
-                jf audit dist/
+                jf audit
                 jf pip install -r requirements.txt  --module=jfrog-python-example                
                 python setup.py sdist bdist_wheel
                 cd dist && echo "hashes=$(sha256sum * | base64 -w0)" >> $GITHUB_OUTPUT
@@ -72,7 +72,7 @@ jobs:
             
             - name: docker scan
               run: |  
-                 jf docker pull ${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}
-                 jf docker scan ${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}   
+                 jf docker pull ${{ env.DOCKER_REPO }}/${{ env.GOLDEN_IMAGE_NAME }}
+                 jf docker scan ${{ env.DOCKER_REPO }}/${{ env.GOLDEN_IMAGE_NAME }}   
           
         
