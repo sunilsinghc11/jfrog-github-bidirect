@@ -72,7 +72,7 @@ jobs:
             
             - name: docker scan
               run: |  
-                 jf docker pull ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}
-                 jf docker scan ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}   
+                 jf docker pull ${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}
+                 jf docker scan ${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}   
           
         
