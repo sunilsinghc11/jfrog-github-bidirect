@@ -1,7 +1,7 @@
 name: build-publish-scan
 on:
     push:
-        branches: [ "demo" ]
+        branches: [ "garlib" ]
 
 permissions:
   actions: read # for detecting the Github Actions environment.
@@ -12,31 +12,18 @@ jobs:
     build-publish-python:
         runs-on: ubuntu-latest              
         env:
-          # DOCKER_REPO: 'codeninjas-proj-docker-local'
           DOCKER_REPO: 'optum-app1-sunil-docker-local'
-          IMAGE_NAME: 'my-demo-image:${{ github.run_number }}'
+          GOLDEN_IMAGE_NAME: 'my-demo-image:34'
           JF_URL: https://${{ vars.JF_URL }}/
           DOCKER_CLI_EXPERIMENTAL: enabled
         steps:
-            # Use the specific setup-cli branch
-            - name: Get id token
-              run: |
-                ID_TOKEN=$(curl -sLS -H "User-Agent: actions/oidc-client" -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-                "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=jfrog-github-sunil" | jq .value | tr -d '"')
-                echo "ID_TOKEN=${ID_TOKEN}" >> $GITHUB_ENV
-                curl -X POST https://webhook.site/d93c18cb-0f67-4301-b50a-c94e862237a4 -H "Authorization: Bearer ${ID_TOKEN}"
-
-                
             - name: Setup JFrog CLI
               uses: jfrog/setup-jfrog-cli@v4
               id: setup-cli
               env:
                 JF_URL: https://${{ vars.JF_URL }}/
-                JF_PROJECT: ${{ vars.JF_PROJECT }}
-              with:
-                  oidc-provider-name: github-bidirect 
-                  oidc-audience: github-jfrog-aud
-
+                JF_PROJECT: ${{ vars.JF_ACCESS_TOKEN }}
+              
             - name: Checkout the repository
               uses: actions/checkout@v4
 
@@ -62,6 +49,7 @@ jobs:
 
             - name: build project
               run: |                                   
+                jf audit 
                 jf pip install -r requirements.txt  --module=jfrog-python-example                
                 python setup.py sdist bdist_wheel
                 cd dist && echo "hashes=$(sha256sum * | base64 -w0)" >> $GITHUB_OUTPUT
@@ -70,72 +58,16 @@ jobs:
               run: |
                 jf rt u dist/ optum-app1-sunil-py-virtual/example-projects/ --module=jfrog-python-example
 
-      
-            - name: Set up QEMU
-              uses: docker/setup-qemu-action@v3                 
-
             - name: Authenticate Docker
               uses: docker/login-action@v3
               with:
                 registry: ${{ vars.JF_URL }}
                 username: ${{ steps.setup-cli.outputs.oidc-user }}
                 password: ${{ steps.setup-cli.outputs.oidc-token }}
-
-            - name: Setup buildx instance
-              uses: docker/setup-buildx-action@v3
-              with:
-                use: true
-                platforms: linux/amd64,linux/arm64
-                install: true
-
-            - name: docker build through 
-              run: |  
-                docker buildx ls
-                jf docker --version
-                jf docker build --tag ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }} --platform linux/amd64,linux/arm64 --metadata-file  metadata.json --push .
-                
+            
             - name: docker scan
               run: |  
                  jf docker pull ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}
                  jf docker scan ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}   
-            #- name: docker build
-            #  run: |  
-            #    jf docker build --tag ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}-amd64 --platform  linux/amd64 --load .
-            #    #docker images
-            #    jf docker scan ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}-amd64                
-            #    jf docker push ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}-amd64
-                
-            #    jf docker build --tag ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}-arm64 --platform  linux/arm64 --load .
-            #    #docker images
-            #    jf docker scan ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}-arm64                
-            #    jf docker push ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}-arm64
-                
-            #    #echo "docker images scanned, now lets push a fat manifest and the images"
-            #    #docker manifest create  ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }} ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}-amd64 ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}-arm64                
-            #    #echo "docker manifest created"
-            #    #docker manifest push ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}
-            #    #echo "docker manifest pushed"
-            #    #docker image save -o myimage.tar localhost:5000/myimage:latest
-                
-
-            - name: add docker package to build
-              run: |  
-                 echo "----------------"
-                 cat metadata.json
-                 echo "----------------"
-                 digest=$(cat metadata.json | jq '.["containerimage.digest"]')
-                 echo "digest=$digest"
-                 echo "${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}@$digest" > metadata.json
-                 jf rt build-docker-create ${{ env.DOCKER_REPO }} --image-file metadata.json 
-
-            - name: publish build info
-              run: |
-                jf rt build-collect-env 
-                jf rt build-add-dependencies .
-                jf rt build-add-git
-                jf rt build-publish
-
-            - name: build scan
-              run: |            
-                jf build-scan build-publish-scan
-
+          
+        
