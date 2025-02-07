@@ -23,7 +23,8 @@ jobs:
               id: setup-cli
               env:
                 JF_URL: https://${{ vars.JF_URL }}/
-                JF_PROJECT: ${{ vars.JF_ACCESS_TOKEN }}
+                JF_PROJECT: ${{ vars.JF_PROJECT }}
+                JF_ACCESS_TOKEN: ${{ vars.JF_ACCESS_TOKEN }}
               
             - name: Checkout the repository
               uses: actions/checkout@v4
@@ -53,7 +54,7 @@ jobs:
                 export JFROG_CLI_LOG_LEVEL=DEBUG
                 jf config show
                 jf rt ping
-                jf audit
+                jf audit 
                 exit 1
                 jf pip install -r requirements.txt  --module=jfrog-python-example                
                 python setup.py sdist bdist_wheel
@@ -67,8 +68,8 @@ jobs:
               uses: docker/login-action@v3
               with:
                 registry: ${{ vars.JF_URL }}
-                username: ${{ steps.setup-cli.outputs.oidc-user }}
-                password: ${{ steps.setup-cli.outputs.oidc-token }}
+                username: sunils@jfrog.com
+                password: ${{ vars.JF_ACCESS_TOKEN }}
             
             - name: docker scan
               run: |  
