@@ -51,7 +51,7 @@ jobs:
 
             - name: build project
               run: | 
-                export JFROG_CLI_LOG_LEVEL=DEBUG
+                #export JFROG_CLI_LOG_LEVEL=DEBUG
                 jf config show
                 jf rt ping
                 jf audit 
