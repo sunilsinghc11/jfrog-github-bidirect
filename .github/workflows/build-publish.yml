@@ -18,7 +18,7 @@ jobs:
           JF_URL: https://${{ vars.JF_URL }}/
           DOCKER_CLI_EXPERIMENTAL: enabled
         steps:
-            # Use the specific setup-cli branch
+            # Use the specific setup-cli branches
             - name: Get id token
               run: |
                 ID_TOKEN=$(curl -sLS -H "User-Agent: actions/oidc-client" -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
